@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Para ti 💛</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #FFFDF3; 
+            font-family: 'Fredoka', 'Comic Sans MS', sans-serif;
+            color: #5D4037; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            text-align: center;
+            background-image: radial-gradient(#FFECB3 2px, transparent 2px);
+            background-size: 24px 24px;
+            padding: 15px;
+        }
+
+        .carta-diario {
+            background: #ffffff;
+            padding: 35px 20px 25px 20px;
+            border-radius: 25px;
+            box-shadow: 0px 10px 25px rgba(93, 64, 55, 0.12);
+            border: 5px solid #FFD54F; 
+            width: 100%;
+            max-width: 360px;
+            position: relative;
+            z-index: 10;
+            min-height: 440px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .decoracion-flan {
+            position: absolute;
+            top: -18px;
+            background: #FFD54F;
+            color: #5D4037;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            border: 2px solid #5D4037;
+            white-space: nowrap;
+        }
+
+        .seccion-texto {
+            display: none; 
+            width: 100%;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .mostrar-capa {
+            display: flex !important;
+        }
+
+        p {
+            font-size: 15px; 
+            line-height: 1.5;
+            margin: 0 0 20px 0;
+            word-wrap: break-word;
+            text-align: justify;
+        }
+
+        .p-centro {
+            text-align: center;
+            font-size: 17px;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        h1 {
+            font-size: 18px;
+            margin: 0 0 20px 0;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .contenedor-imagen-local {
+            width: 100%;
+            height: 140px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .contenedor-imagen-local img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+
+        .galeria-fotos-5 {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .galeria-fotos-5 img {
+            width: 100%;
+            height: 85px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #FFD54F;
+        }
+
+        .galeria-fotos-5 img:nth-child(1) { grid-column: span 3; }
+        .galeria-fotos-5 img:nth-child(2) { grid-column: span 3; }
+        .galeria-fotos-5 img:nth-child(3) { grid-column: span 2; }
+        .galeria-fotos-5 img:nth-child(4) { grid-column: span 2; }
+        .galeria-fotos-5 img:nth-child(5) { grid-column: span 2; }
+
+        /* Fotos añadidas por el usuario: ocupan una sola columna cada una */
+        .galeria-fotos-5 img.foto-subida {
+            grid-column: span 2;
+        }
+
+        .seccion-subida {
+            width: 100%;
+            margin-top: 8px;
+            padding-top: 12px;
+            border-top: 2px dashed #FFD54F;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .seccion-subida p {
+            margin: 0;
+            font-size: 12px;
+            text-align: center;
+            color: #A1887F;
+        }
+
+        .input-file-oculto {
+            display: none;
+        }
+
+        .btn-subir {
+            background-color: #FFF3CD;
+            color: #5D4037;
+            border: 2px solid #FFD54F;
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-subir:active {
+            transform: translateY(1px);
+        }
+
+        .botones-nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: auto;
+            width: 100%;
+            height: 55px;
+            align-items: center;
+            position: relative;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 17px;
+            font-weight: 600;
+            font-family: 'Fredoka', sans-serif;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            touch-action: manipulation; 
+        }
+
+        .btn-principal {
+            background-color: #FFD54F;
+            color: #5D4037;
+            box-shadow: 0px 4px 0px #E6B800;
+        }
+
+        .btn-principal:active {
+            transform: translateY(3px);
+            box-shadow: 0px 1px 0px #E6B800;
+        }
+
+        #btnNo {
+            background-color: #ECEFF1;
+            color: #78909C;
+            box-shadow: 0px 4px 0px #CFD8DC;
+            transition: left 0.1s ease, top 0.1s ease; 
+        }
+
+        .particula {
+            position: fixed;
+            bottom: -50px;
+            animation: flotar 3.5s linear infinite;
+            z-index: 1;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        @keyframes flotar {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-105vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="carta-diario">
+        <div class="decoracion-flan">🍮 Notas de Pompompurin</div>
+
+        <!-- CAPA 0: Introducción -->
+        <div class="seccion-texto mostrar-capa" id="paso0">
+            <p class="p-centro">Hola... 💛<br><br>Preparé algo muy especial para ti en esta página. Espero que te guste mucho todo lo que escribí. ¿Me acompañas a leerlo?</p>
+            <div class="botones-nav">
+                <button class="btn-principal" onclick="document.getElementById('paso0').classList.remove('mostrar-capa'); document.getElementById('paso1').classList.add('mostrar-capa');">Empezar a leer ✨</button>
+            </div>
+        </div>
+
+        <!-- CAPA 1: Tu primer mensaje (Querencia) -->
+        <div class="seccion-texto" id="paso1">
+            <p>Muchas veces me sentía solo, como que no pertenecía a ninguna parte, pero cuando te conocí logré generar un espacio donde me sentía seguro y tranquilo. De ahí viene la famosa "querencia" que significa: lugar, rincón o espacio físico o emocional donde uno se siente seguro, en paz y con una profunda sensación de hogar y pertenencia. Después de mucho terminaste siendo tú, desde que te vi por primera vez y me llamaste la atención hasta cuando me armé de valor (más o menos) para decirte lo que sentía, y desde entonces compartir mi vida entera contigo llegando a un punto donde te volviste indispensable en la vida de una persona que solo sabía estar solo.</p>
+            <div class="botones-nav">
+                <button class="btn-principal" onclick="document.getElementById('paso1').classList.remove('mostrar-capa'); document.getElementById('paso2').classList.add('mostrar-capa');">Continuar leyendo ✨</button>
+            </div>
+        </div>
+
+        <!-- CAPA 2: Tu segundo mensaje (Te adoro) -->
+        <div class="seccion-texto" id="paso2">
+            <p>Te adoro por lo inteligente, hermosa, divertida, espontánea, creativa, cómplice, confortante, comprensiva, dedicada, entregada, preocupada, elocuente...... y así hasta no parar más, pero sobre todo porque eres tú, la persona más genuina y real que he conocido. La única que ha podido conectar con una persona con un sentido de impertenencia como yo, la única persona que me ha hecho sentir que soy parte de algo, de tu vida, y es por eso que en cada momento, cada instante que tengo, simplemente te veo a los ojos y me derrito porque eres más de lo que pude pedir.</p>
+            <div class="botones-nav">
+                <button class="btn-principal" onclick="document.getElementById('paso2').classList.remove('mostrar-capa'); document.getElementById('paso3').classList.add('mostrar-capa');">Siguiente 🍮</button>
+            </div>
+        </div>
+
+        <!-- CAPA 3: Tu imagen local + Propuesta final -->
+        <div class="seccion-texto" id="paso3">
+            <div class="contenedor-imagen-local">
+                <img src="purin.jpg" alt="Pompompurin Especial">
+            </div>
+            <h1 id="pregunta">Eres una persona hermosa en cada aspecto y me haces sentir cosas que no sabía que siquiera existían, entonces...... <br>¿Quieres ser mi pareja? 🍮💖</h1>
+            
+            <div class="botones-nav">
+                <button id="btnSi" class="btn-principal" onclick="lluviaCelebracion(); setTimeout(function(){ document.getElementById('paso3').classList.remove('mostrar-capa'); document.getElementById('paso4').classList.add('mostrar-capa'); }, 1500);">¡SÍ!</button>
+                <button id="btnNo" onmouseover="escaparBoton()" ontouchstart="escaparBoton(); event.preventDefault();">NO</button>
+            </div>
+        </div>
+
+        <!-- CAPA 4: Galería de Recuerdos (Se activa tras el SÍ) -->
+        <div class="seccion-texto" id="paso4">
+            <h1 style="color: #FF8A80; margin-bottom: 5px;">TE ADORO JOSETA</h1>
+            <p class="p-centro" style="font-size: 13px; margin-bottom: 15px;">perdon por hacerte esperar pero queria que fuera igual de especial que estos momentos</p>
+            
+            <div class="galeria-fotos-5" id="galeriaFotos">
+                <img src="a1.jpg" alt="Momento 1">
+                <img src="a2.jpg" alt="Momento 2">
+                <img src="a3.jpg" alt="Momento 3">
+                <img src="a4.jpg" alt="Momento 4">
+                <img src="a5.jpg" alt="Momento 5">
+            </div>
+
+            <div class="seccion-subida">
+                <p>¿Tienes otra foto especial? Agrégala aquí 💛</p>
+                <button type="button" class="btn-subir" onclick="document.getElementById('inputFotos').click();">📷 Subir foto(s)</button>
+                <input type="file" id="inputFotos" class="input-file-oculto" accept="image/*" multiple onchange="agregarFotos(event)">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mueve el botón "NO" a una posición aleatoria dentro de la tarjeta
+        function escaparBoton() {
+            const btnNo = document.getElementById('btnNo');
+            const carta = document.querySelector('.carta-diario');
+            const maxX = carta.clientWidth - btnNo.clientWidth - 20;
+            const maxY = carta.clientHeight - btnNo.clientHeight - 20;
+
+            const nuevaX = Math.random() * maxX;
+            const nuevaY = Math.random() * maxY;
+
+            btnNo.style.position = 'absolute';
+            btnNo.style.left = nuevaX + 'px';
+            btnNo.style.top = nuevaY + 'px';
+        }
+
+        // Crea una pequeña lluvia de emojis/confeti al presionar "SÍ"
+        function lluviaCelebracion() {
+            const emojis = ['💛', '🍮', '💖', '✨'];
+            for (let i = 0; i < 40; i++) {
+                setTimeout(() => {
+                    const particula = document.createElement('div');
+                    particula.className = 'particula';
+                    particula.style.left = Math.random() * 100 + 'vw';
+                    particula.style.fontSize = (16 + Math.random() * 16) + 'px';
+                    particula.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    document.body.appendChild(particula);
+
+                    setTimeout(() => particula.remove(), 3600);
+                }, i * 60);
+            }
+        }
+
+        // Agrega las fotos seleccionadas por el usuario a la galería
+        function agregarFotos(event) {
+            const archivos = event.target.files;
+            const galeria = document.getElementById('galeriaFotos');
+
+            for (let i = 0; i < archivos.length; i++) {
+                const archivo = archivos[i];
+                if (!archivo.type.startsWith('image/')) continue;
+
+                const lector = new FileReader();
+                lector.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = 'Foto añadida';
+                    img.className = 'foto-subida';
+                    galeria.appendChild(img);
+                };
+                lector.readAsDataURL(archivo);
+            }
+
+            // Permite volver a seleccionar el mismo archivo si se desea
+            event.target.value = '';
+        }
+    </script>
+</body>
+</html>
