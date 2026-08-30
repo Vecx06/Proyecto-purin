@@ -365,9 +365,8 @@
         </div>
     </div>
 
-    <!-- Firebase (para que las fotos subidas queden guardadas para siempre, visibles desde cualquier dispositivo) -->
+    <!-- Firebase Realtime Database (100% gratis, sin necesidad de tarjeta) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
     <script>
@@ -383,7 +382,6 @@
         };
 
         firebase.initializeApp(firebaseConfig);
-        const storage = firebase.storage();
         const db = firebase.database();
 
         // Mueve el botón "NO" a una posición aleatoria dentro de la tarjeta
@@ -418,46 +416,60 @@
             }
         }
 
-        // Sube las fotos seleccionadas a Firebase Storage y guarda su link en Realtime Database
-        function agregarFotos(event) {
-            const archivos = event.target.files;
+        // Reduce el tamaño de una imagen antes de guardarla, para que no pese demasiado
+        function comprimirImagen(archivo, anchoMax = 900, calidad = 0.7) {
+            return new Promise((resolve, reject) => {
+                const lector = new FileReader();
+                lector.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let ancho = img.width;
+                        let alto = img.height;
+                        if (ancho > anchoMax) {
+                            alto = Math.round(alto * (anchoMax / ancho));
+                            ancho = anchoMax;
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = ancho;
+                        canvas.height = alto;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, ancho, alto);
+                        resolve(canvas.toDataURL('image/jpeg', calidad));
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                lector.onerror = reject;
+                lector.readAsDataURL(archivo);
+            });
+        }
+
+        // Comprime y guarda cada foto seleccionada directo en Realtime Database
+        async function agregarFotos(event) {
+            const archivos = Array.from(event.target.files).filter(f => f.type.startsWith('image/'));
             const btnSubir = document.getElementById('btnSubir');
             const estado = document.getElementById('estadoSubida');
             if (!archivos.length) return;
 
             btnSubir.disabled = true;
-            let subidas = 0;
 
-            Array.from(archivos).forEach((archivo) => {
-                if (!archivo.type.startsWith('image/')) return;
-
-                const nombreUnico = Date.now() + '_' + Math.random().toString(36).slice(2) + '_' + archivo.name;
-                const ref = storage.ref('fotos/' + nombreUnico);
-
-                estado.textContent = 'Subiendo foto(s)... 💛';
-
-                ref.put(archivo)
-                    .then((snapshot) => snapshot.ref.getDownloadURL())
-                    .then((url) => {
-                        return db.ref('galeria').push({
-                            url: url,
-                            fecha: Date.now()
-                        });
-                    })
-                    .then(() => {
-                        subidas++;
-                        estado.textContent = '¡Foto guardada para siempre! 💛';
-                        setTimeout(() => { estado.textContent = ''; }, 3000);
-                    })
-                    .catch((error) => {
-                        console.error(error);
-                        estado.textContent = 'Ups, algo falló subiendo la foto 😢';
-                    })
-                    .finally(() => {
-                        btnSubir.disabled = false;
+            for (const archivo of archivos) {
+                try {
+                    estado.textContent = 'Subiendo foto(s)... 💛';
+                    const dataUrl = await comprimirImagen(archivo);
+                    await db.ref('galeria').push({
+                        url: dataUrl,
+                        fecha: Date.now()
                     });
-            });
+                    estado.textContent = '¡Foto guardada para siempre! 💛';
+                    setTimeout(() => { estado.textContent = ''; }, 3000);
+                } catch (error) {
+                    console.error(error);
+                    estado.textContent = 'Ups, algo falló subiendo la foto 😢';
+                }
+            }
 
+            btnSubir.disabled = false;
             event.target.value = '';
         }
 
@@ -465,7 +477,6 @@
         function cargarGaleriaGuardada() {
             const galeria = document.getElementById('galeriaFotos');
             db.ref('galeria').on('value', (snapshot) => {
-                // Quita las fotos dinámicas ya renderizadas antes de volver a pintarlas
                 galeria.querySelectorAll('img.foto-subida').forEach((img) => img.remove());
 
                 const datos = snapshot.val();
