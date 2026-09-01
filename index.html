@@ -27,6 +27,7 @@
             background-image: radial-gradient(#FFECB3 2px, transparent 2px);
             background-size: 24px 24px;
             padding: 15px;
+            overscroll-behavior-x: none;
         }
 
         .carta-diario {
@@ -44,6 +45,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            touch-action: pan-y;
         }
 
         .decoracion-flan {
@@ -188,6 +190,16 @@
             min-height: 16px;
         }
 
+        .pista-deslizar {
+            font-size: 11px;
+            color: #C6A87C;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 4px;
+        }
+
         .botones-nav {
             display: flex;
             justify-content: center;
@@ -240,6 +252,50 @@
         @keyframes flotar {
             0% { transform: translateY(0) rotate(0deg); opacity: 1; }
             100% { transform: translateY(-105vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* ===== Capa 5: la carta ===== */
+        .contenedor-carta {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .titulo-carta {
+            color: #D81B60;
+            font-size: 19px;
+            margin-bottom: 15px;
+        }
+
+        .texto-carta {
+            width: 100%;
+            max-height: 260px;
+            overflow-y: auto;
+            background: #FFF8E7;
+            border: 2px dashed #FFD54F;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .texto-carta p {
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0 0 12px 0;
+            text-align: left;
+        }
+
+        .texto-carta p:last-child {
+            margin-bottom: 0;
+        }
+
+        .firma-carta {
+            font-size: 14px;
+            font-style: italic;
+            color: #A1887F;
+            align-self: flex-end;
+            margin: 0;
         }
 
         /* ===== Mejoras para pantallas grandes (PC / tablet) ===== */
@@ -298,19 +354,32 @@
                 font-size: 18px;
                 padding: 13px 28px;
             }
+
+            .texto-carta {
+                max-height: 340px;
+                padding: 22px;
+            }
+
+            .texto-carta p {
+                font-size: 16px;
+            }
+
+            .titulo-carta {
+                font-size: 23px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="carta-diario">
+    <div class="carta-diario" id="cartaDiario">
         <div class="decoracion-flan">🍮 Notas de Pompompurin</div>
 
         <!-- CAPA 0: Introducción -->
         <div class="seccion-texto mostrar-capa" id="paso0">
             <p class="p-centro">Hola... 💛<br><br>Preparé algo muy especial para ti en esta página. Espero que te guste mucho todo lo que escribí. ¿Me acompañas a leerlo?</p>
             <div class="botones-nav">
-                <button class="btn-principal" onclick="document.getElementById('paso0').classList.remove('mostrar-capa'); document.getElementById('paso1').classList.add('mostrar-capa');">Empezar a leer ✨</button>
+                <button class="btn-principal" onclick="cambiarCapa('paso0','paso1')">Empezar a leer ✨</button>
             </div>
         </div>
 
@@ -318,7 +387,7 @@
         <div class="seccion-texto" id="paso1">
             <p>Muchas veces me sentía solo, como que no pertenecía a ninguna parte, pero cuando te conocí logré generar un espacio donde me sentía seguro y tranquilo. De ahí viene la famosa "querencia" que significa: lugar, rincón o espacio físico o emocional donde uno se siente seguro, en paz y con una profunda sensación de hogar y pertenencia. Después de mucho terminaste siendo tú, desde que te vi por primera vez y me llamaste la atención hasta cuando me armé de valor (más o menos) para decirte lo que sentía, y desde entonces compartir mi vida entera contigo llegando a un punto donde te volviste indispensable en la vida de una persona que solo sabía estar solo.</p>
             <div class="botones-nav">
-                <button class="btn-principal" onclick="document.getElementById('paso1').classList.remove('mostrar-capa'); document.getElementById('paso2').classList.add('mostrar-capa');">Continuar leyendo ✨</button>
+                <button class="btn-principal" onclick="cambiarCapa('paso1','paso2')">Continuar leyendo ✨</button>
             </div>
         </div>
 
@@ -326,7 +395,7 @@
         <div class="seccion-texto" id="paso2">
             <p>Te adoro por lo inteligente, hermosa, divertida, espontánea, creativa, cómplice, confortante, comprensiva, dedicada, entregada, preocupada, elocuente...... y así hasta no parar más, pero sobre todo porque eres tú, la persona más genuina y real que he conocido. La única que ha podido conectar con una persona con un sentido de impertenencia como yo, la única persona que me ha hecho sentir que soy parte de algo, de tu vida, y es por eso que en cada momento, cada instante que tengo, simplemente te veo a los ojos y me derrito porque eres más de lo que pude pedir.</p>
             <div class="botones-nav">
-                <button class="btn-principal" onclick="document.getElementById('paso2').classList.remove('mostrar-capa'); document.getElementById('paso3').classList.add('mostrar-capa');">Siguiente 🍮</button>
+                <button class="btn-principal" onclick="cambiarCapa('paso2','paso3')">Siguiente 🍮</button>
             </div>
         </div>
 
@@ -338,12 +407,12 @@
             <h1 id="pregunta">Eres una persona hermosa en cada aspecto y me haces sentir cosas que no sabía que siquiera existían, entonces...... <br>¿Quieres ser mi pareja? 🍮💖</h1>
             
             <div class="botones-nav">
-                <button id="btnSi" class="btn-principal" onclick="lluviaCelebracion(); setTimeout(function(){ document.getElementById('paso3').classList.remove('mostrar-capa'); document.getElementById('paso4').classList.add('mostrar-capa'); }, 1500);">¡SÍ!</button>
+                <button id="btnSi" class="btn-principal" onclick="lluviaCelebracion(); setTimeout(function(){ cambiarCapa('paso3','paso4'); }, 1500);">¡SÍ!</button>
                 <button id="btnNo" onmouseover="escaparBoton()" ontouchstart="escaparBoton(); event.preventDefault();">NO</button>
             </div>
         </div>
 
-        <!-- CAPA 4: Galería de Recuerdos (Se activa tras el SÍ) -->
+        <!-- CAPA 4: Galería de Recuerdos (Se activa tras el SÍ, o al volver a entrar) -->
         <div class="seccion-texto" id="paso4">
             <h1 style="color: #FF8A80; margin-bottom: 5px;">TE ADORO JOSETA</h1>
             <p class="p-centro" style="font-size: 13px; margin-bottom: 15px;">perdon por hacerte esperar pero queria que fuera igual de especial que estos momentos</p>
@@ -361,6 +430,26 @@
                 <button type="button" class="btn-subir" id="btnSubir" onclick="document.getElementById('inputFotos').click();">📷 Subir foto(s)</button>
                 <input type="file" id="inputFotos" class="input-file-oculto" accept="image/*" multiple onchange="agregarFotos(event)">
                 <div class="estado-subida" id="estadoSubida"></div>
+            </div>
+
+            <div class="pista-deslizar">
+                <span>🍮 ← desliza para releer</span>
+                <span>desliza para la carta → 💌</span>
+            </div>
+        </div>
+
+        <!-- CAPA 5: La carta -->
+        <div class="seccion-texto" id="paso5">
+            <div class="contenedor-carta">
+                <h1 class="titulo-carta">Una cartita para ti 💌</h1>
+                <div class="texto-carta" id="textoCarta">
+                    <p>Aquí va tu mensaje especial. Reemplaza este texto directamente en el archivo HTML, dentro del bloque con id="textoCarta", por lo que quieras escribirle.</p>
+                </div>
+                <p class="firma-carta">Con todo mi cariño, 🍮</p>
+                <div class="pista-deslizar">
+                    <span>← desliza para volver a las fotos</span>
+                    <span></span>
+                </div>
             </div>
         </div>
     </div>
@@ -383,6 +472,32 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+
+        // ===== Navegación entre capas =====
+        function cambiarCapa(desdeId, haciaId) {
+            const desde = document.getElementById(desdeId);
+            const hacia = document.getElementById(haciaId);
+            if (desde) desde.classList.remove('mostrar-capa');
+            if (hacia) hacia.classList.add('mostrar-capa');
+
+            // Una vez que llega a la galería (capa 4), recordamos la visita
+            if (haciaId === 'paso4') {
+                localStorage.setItem('purinVisitada', 'true');
+            }
+        }
+
+        function estaVisible(id) {
+            const el = document.getElementById(id);
+            return el && el.classList.contains('mostrar-capa');
+        }
+
+        // Si ya visitó antes, entra directo a la galería (capa 4)
+        function revisarVisitaAnterior() {
+            if (localStorage.getItem('purinVisitada') === 'true') {
+                cambiarCapa('paso0', 'paso4');
+            }
+        }
+        revisarVisitaAnterior();
 
         // Mueve el botón "NO" a una posición aleatoria dentro de la tarjeta
         function escaparBoton() {
@@ -416,7 +531,67 @@
             }
         }
 
-        // Reduce el tamaño de una imagen antes de guardarla, para que no pese demasiado
+        // ===== Deslizar (swipe) entre capa 4, capa 5 y capa 0 =====
+        // Estando en la capa 4: deslizar a la derecha -> capa 5 (carta) | deslizar a la izquierda -> capa 0 (propuesta)
+        // Estando en la capa 5: deslizar a la izquierda -> capa 4 (galería)
+        let inicioX = null;
+        let inicioY = null;
+
+        function manejarInicioSwipe(x, y) {
+            inicioX = x;
+            inicioY = y;
+        }
+
+        function manejarFinSwipe(x, y) {
+            if (inicioX === null) return;
+            const diffX = x - inicioX;
+            const diffY = y - inicioY;
+            inicioX = null;
+            inicioY = null;
+
+            const UMBRAL = 55;
+            if (Math.abs(diffX) < UMBRAL || Math.abs(diffX) < Math.abs(diffY) * 1.2) return;
+
+            if (diffX > 0) {
+                // Deslizar hacia la derecha
+                if (estaVisible('paso4')) {
+                    cambiarCapa('paso4', 'paso5');
+                }
+            } else {
+                // Deslizar hacia la izquierda
+                if (estaVisible('paso4')) {
+                    cambiarCapa('paso4', 'paso0');
+                } else if (estaVisible('paso5')) {
+                    cambiarCapa('paso5', 'paso4');
+                }
+            }
+        }
+
+        const zonaSwipe = document.getElementById('cartaDiario');
+
+        zonaSwipe.addEventListener('touchstart', (e) => {
+            const t = e.changedTouches[0];
+            manejarInicioSwipe(t.clientX, t.clientY);
+        }, { passive: true });
+
+        zonaSwipe.addEventListener('touchend', (e) => {
+            const t = e.changedTouches[0];
+            manejarFinSwipe(t.clientX, t.clientY);
+        }, { passive: true });
+
+        // También funciona arrastrando con el mouse (para probar en PC)
+        let arrastrando = false;
+        zonaSwipe.addEventListener('mousedown', (e) => {
+            arrastrando = true;
+            manejarInicioSwipe(e.clientX, e.clientY);
+        });
+        zonaSwipe.addEventListener('mouseup', (e) => {
+            if (!arrastrando) return;
+            arrastrando = false;
+            manejarFinSwipe(e.clientX, e.clientY);
+        });
+
+        // Sube las fotos seleccionadas (comprimidas) directo a Realtime Database
         function comprimirImagen(archivo, anchoMax = 900, calidad = 0.7) {
             return new Promise((resolve, reject) => {
                 const lector = new FileReader();
@@ -444,7 +619,6 @@
             });
         }
 
-        // Comprime y guarda cada foto seleccionada directo en Realtime Database
         async function agregarFotos(event) {
             const archivos = Array.from(event.target.files).filter(f => f.type.startsWith('image/'));
             const btnSubir = document.getElementById('btnSubir');
