@@ -190,6 +190,18 @@
             min-height: 16px;
         }
 
+        .input-cancion {
+            width: 100%;
+            padding: 10px 16px;
+            border: 2px solid #FFD54F;
+            border-radius: 50px;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 13px;
+            color: #5D4037;
+            outline: none;
+            touch-action: manipulation;
+        }
+
         .pista-deslizar {
             font-size: 11px;
             color: #C6A87C;
@@ -443,14 +455,33 @@
             <div class="contenedor-carta">
                 <h1 class="titulo-carta">Una cartita para ti 💌</h1>
                 <div class="texto-carta" id="textoCarta">
-                    <p>QUERIDA JOSETA</p>
-                    <p>Desde que te conocí, mi vida ha cambiado de una manera que nunca imaginé. Cada momento contigo es un tesoro que guardo en mi corazón. Tu risa, tu mirada, tu forma de ser, y a pesar que soy pesimo para expresarme queria que supieras que me gustas, no encontre mejor manera que en lo que hago asi que lo dejera aqui para que siempre que quieras lo puedas recordar, te amo, me cuesta decirlo ya que naci reacido a esa palabra, como si conllevara un significado que no puedo sostener, pero desde que mis ojos encontraron los tuyos no puedo dejar de mirarlos, me gusta pensar en ti como ese sol y me di cuenta que ahora le diste sentido a mis girasoles, ellos dan vueltas buscandote, esa luz calida que los alimenta, renueva y los llena por completo, asi me siento yo al verte, y mis girasoles te sigen a ti.... Lo que me dio la inspiracion para esta carta fue (GIRASOLES) de jay wheeler para que la escuches y te acuerdes de mi si algun dia te falto  💛 </p>
+                    <p>Aquí va tu mensaje especial. Reemplaza este texto directamente en el archivo HTML, dentro del bloque con id="textoCarta", por lo que quieras escribirle.</p>
                 </div>
-                <p class="firma-carta">Con todo mi amor 🍮</p>
+                <p class="firma-carta">Con todo mi cariño, 🍮</p>
                 <div class="pista-deslizar">
-                    <span></span>
                     <span>desliza para volver a las fotos → 📷</span>
+                    <span>🎵 ← desliza para la canción</span>
                 </div>
+            </div>
+        </div>
+
+        <!-- CAPA 6: Canción del momento -->
+        <div class="seccion-texto" id="paso6">
+            <h1 style="color: #1DB954; margin-bottom: 5px;">Nuestra canción del momento 🎵</h1>
+            <p class="p-centro" style="font-size: 13px; margin-bottom: 15px;">cada cierto tiempo voy a cambiar la canción que más me recuerda a ti</p>
+
+            <div id="reproductorSpotify" style="width: 100%; margin-bottom: 15px;"></div>
+
+            <div class="seccion-subida">
+                <p>Pega aquí el link de Spotify de la canción</p>
+                <input type="text" id="inputCancion" class="input-cancion" placeholder="https://open.spotify.com/track/...">
+                <button type="button" class="btn-subir" onclick="guardarCancion()">🎵 Guardar canción</button>
+                <div class="estado-subida" id="estadoCancion"></div>
+            </div>
+
+            <div class="pista-deslizar">
+                <span>desliza para volver a la carta → 💌</span>
+                <span></span>
             </div>
         </div>
     </div>
@@ -532,9 +563,10 @@
             }
         }
 
-        // ===== Deslizar (swipe) entre capa 4, capa 5 y capa 0 =====
+        // ===== Deslizar (swipe) entre capa 4, capa 5, capa 6 y capa 0 =====
         // Estando en la capa 4: deslizar a la izquierda -> capa 5 (carta) | deslizar a la derecha -> capa 0 (propuesta)
-        // Estando en la capa 5: deslizar a la derecha -> capa 4 (galería)
+        // Estando en la capa 5: deslizar a la derecha -> capa 4 (galería) | deslizar a la izquierda -> capa 6 (canción)
+        // Estando en la capa 6: deslizar a la derecha -> capa 5 (carta)
         let inicioX = null;
         let inicioY = null;
 
@@ -559,11 +591,15 @@
                     cambiarCapa('paso4', 'paso0');
                 } else if (estaVisible('paso5')) {
                     cambiarCapa('paso5', 'paso4');
+                } else if (estaVisible('paso6')) {
+                    cambiarCapa('paso6', 'paso5');
                 }
             } else {
                 // Deslizar hacia la izquierda
                 if (estaVisible('paso4')) {
                     cambiarCapa('paso4', 'paso5');
+                } else if (estaVisible('paso5')) {
+                    cambiarCapa('paso5', 'paso6');
                 }
             }
         }
@@ -668,6 +704,52 @@
         }
 
         cargarGaleriaGuardada();
+
+        // ===== Canción del momento (banner de Spotify) =====
+        function extraerIdCancionSpotify(url) {
+            const conBarra = url.match(/track\/([a-zA-Z0-9]+)/);
+            if (conBarra) return conBarra[1];
+            const conUri = url.match(/spotify:track:([a-zA-Z0-9]+)/);
+            if (conUri) return conUri[1];
+            return null;
+        }
+
+        async function guardarCancion() {
+            const input = document.getElementById('inputCancion');
+            const estado = document.getElementById('estadoCancion');
+            const url = input.value.trim();
+            const id = extraerIdCancionSpotify(url);
+
+            if (!id) {
+                estado.textContent = 'Ese link no parece válido, revisa que sea de una canción de Spotify 🎵';
+                return;
+            }
+
+            try {
+                estado.textContent = 'Guardando canción... 🎵';
+                await db.ref('cancionActual').set({ id: id, fecha: Date.now() });
+                estado.textContent = '¡Canción guardada! 🎵';
+                setTimeout(() => { estado.textContent = ''; }, 3000);
+                input.value = '';
+            } catch (error) {
+                console.error(error);
+                estado.textContent = 'Ups, no se pudo guardar la canción 😢';
+            }
+        }
+
+        function cargarCancionGuardada() {
+            const contenedor = document.getElementById('reproductorSpotify');
+            db.ref('cancionActual').on('value', (snapshot) => {
+                const datos = snapshot.val();
+                if (!datos || !datos.id) {
+                    contenedor.innerHTML = '<p class="p-centro" style="font-size:13px; color:#A1887F;">Todavía no hay ninguna canción guardada 🎵</p>';
+                    return;
+                }
+                contenedor.innerHTML = '<iframe style="border-radius:14px;" src="https://open.spotify.com/embed/track/' + datos.id + '?utm_source=generator" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>';
+            });
+        }
+
+        cargarCancionGuardada();
     </script>
 </body>
 </html>
